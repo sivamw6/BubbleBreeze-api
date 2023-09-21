@@ -4,6 +4,8 @@ const morgan = require('morgan');
 
 // Local imports
 const routes = require('./routes/routes');
+const ApiError = require('./utils/ApiError');
+const ApiErrorHandler = require('./middleware/apiErrorHandler');
 
 // Init express app
 const app = express(); 
@@ -18,12 +20,11 @@ app.use('/api', routes())
 
 // Error path 1: Not Found Route
 app.use((req, res, next) => {
-  const err = new Error('404 - Resource not found');
-  err.status = 404;
-  res.status(err.status).send(err.message);
+  next(ApiError.notFound());
 })
 
 // Error path 2: User/Server Error  
+app.use(ApiErrorHandler);
 
 // Port to listen on
 const PORT = process.env.PORT || 3000;

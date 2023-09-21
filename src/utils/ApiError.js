@@ -11,8 +11,8 @@ class ApiError {
   }
 
   // [404] Not Found
-  static notFound(msg){
-    return new ApiError(404, `Resource Not Found: ${msg}`);
+  static notFound(){
+    return new ApiError(404, "Resource Not Found");
   }
 
   // [500] Internal Server Error
