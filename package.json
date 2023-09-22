@@ -7,7 +7,8 @@
   "license": "MIT",
   "scripts": {
     "test": "node src/index",
-    "server": "nodemon src/index"
+    "server": "nodemon src/index",
+    "dev": "DEBUG=app* nodemon src/index"
   },
   "dependencies": {
     "axios": "^1.5.0",
