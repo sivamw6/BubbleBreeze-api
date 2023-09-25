@@ -4,9 +4,19 @@ const router = express.Router();
 const AuthController = require('../controllers/authController');
 
 module.exports = () => {
-  // Endpoint: /api/auth/users
+  // Auth: test rroute for list of users - GET /api/auth/users
   router.get('/users', 
     AuthController.listUsers
     )
+
+  // Auth register: New user sign up - POST /api/auth/signup
+  router.post('/signup',
+    AuthController.signup
+  )
+
+
+  // Auth login: Existing user login - POST /api/auth/login
+
+
     return router;
 }

@@ -3,36 +3,37 @@ const express = require('express');
 const morgan = require('morgan');
 require('dotenv').config();
 
+
 // Local imports
-const config = require('./config/config');
-const routes = require('./routes/routes');
 const ApiError = require('./utils/ApiError');
 const ApiErrorHandler = require('./middleware/apiErrorHandler');
+const config = require('./config/config');
+const routes = require('./routes/routes');
 const { dbPing } = require('./config/db');
-
-
 // Dev debug console logs
 const debugStartup = require('debug')('app:startup');
+
 
 // Init express app
 const app = express(); 
 
-// Express middleware, the order is important
+
+// Express middleware, (the order is important)
+// (a) Returns middleware that only parses JSON/urlcoded
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(morgan('dev')); // morgan is a logger for requests, it will offer more details in the console
 debugStartup("Parsing middleware enabled on all routes");
-
-// Establish routes
+// (b) Cycle our request through mogan to track our queries
+app.use(morgan('dev')); // morgan is a logger for requests, it will offer more details in the console
+// (c) Main routing middleware function
 app.use('/api', routes())
-
-// Error path 1: Not Found Route
+// (d) Not Found Route
 app.use((req, res, next) => {
   next(ApiError.notFound());
 })
-
-// Error path 2: User/Server Error  
+// (e) Error Handler Middleware
 app.use(ApiErrorHandler);
+
 
 // Port to listen on
 dbPing.then(() => {
