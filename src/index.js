@@ -8,6 +8,7 @@ const config = require('./config/config');
 const routes = require('./routes/routes');
 const ApiError = require('./utils/ApiError');
 const ApiErrorHandler = require('./middleware/apiErrorHandler');
+const { dbPing } = require('./config/db');
 
 
 // Dev debug console logs
@@ -34,8 +35,10 @@ app.use((req, res, next) => {
 app.use(ApiErrorHandler);
 
 // Port to listen on
-const port = config.port;
-app.listen(
-  port, 
-  () => console.log(`Server started on port: ${port}`)
-);
+dbPing.then(() => {
+  const port = config.port;
+  app.listen(
+    port, 
+    () => console.log(`Server started on port: ${port}`)
+  );
+})
