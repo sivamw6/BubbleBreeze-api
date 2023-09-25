@@ -60,6 +60,7 @@ module.exports = {
         });
       });
 
+
       // Search the users array for a duplicate
       const emailMatch = users.filter(user => user.email === email);
       const usernameMatch = users.filter(user => user.username === username);
@@ -70,9 +71,11 @@ module.exports = {
         return next(ApiError.badRequest("This email is already in use. "))
       }
 
+
       // Encrypt our password
       const salt = await bcrypt.genSalt(15);
       const hashPassword = await bcrypt.hash(password, salt);
+
 
       // User data can be saved to database
       const response = await usersRef.add({
@@ -84,8 +87,27 @@ module.exports = {
         isAdmin: false
       })
       console.log(`User added to database:  ${response.id} `)
+
+
+      // Conver the user details to JSON
+      const user = await usersRef.doc(response.id).get();
+      const userJSON = _.omit(
+        { id: response.id, ...user.data() },
+        'password'// second argument is the property we want to remove
+      ) 
+      // Mint & return the user object + the token WITHOUT the password
+      const payload = userJSON;
+      const secrect = "password";
+      const tokenExpireTime = 60 * 60 * 24; 
       
-      res.send("Register endpoint matched!")
+      const token = jwt.sign(payload, secrect, { expiresIn: tokenExpireTime });
+
+      // Return the user object + token
+      res.send({
+        user: userJSON,
+        token: token
+      })
+      
     } catch (error) {
       return next(ApiError.internal("Your profile could not be signed up. Please try again later.", error))
     }
