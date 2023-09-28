@@ -10,10 +10,16 @@ const _ = require('lodash');
 
 module.exports = {
   async findUser(email, username) {
+    console.log('Searching for user with email:', email);
+    console.log('Searching for user with username:', username);
 
     // Convert email & username to lowercase
-    email = email.toLowerCase();
-    username = username.toLowerCase();
+    if (email) {
+      email = email.toLowerCase();
+    }
+    if (username) {
+      username = username.toLowerCase();
+    }
 
     const usersRef = db.collection('users');
     const snapshot = await usersRef.get();
@@ -36,7 +42,9 @@ module.exports = {
     const usernameMatch = users.filter(user => user.username.toLowerCase() === username);
     const emailMatch = users.filter(user => user.email.toLowerCase() === email);
 
-    return [ emailMatch, usernameMatch] ;
+    console.log('Found with emailMatch:', emailMatch);
+    console.log('Found with usernameMatch:', usernameMatch);
+    return {emailMatch, usernameMatch} ;
   },
 
   // Encrypt our password
@@ -44,6 +52,14 @@ module.exports = {
     const salt = await bcrypt.genSalt(15);
     const hashPassword = await bcrypt.hash(password, salt);
     return hashPassword;
+  },
+
+  async comparePassword(user, password) {
+    // Storing password from the DB
+    const hashPassword = user[0].password.toString()
+    // Compare both passwords using bycrypt
+    const passwordMatch = await bcrypt.compare(password, hashPassword);
+    return passwordMatch;
   },
 
   // Convert user details to JSON

@@ -16,7 +16,9 @@ module.exports = () => {
 
 
   // Auth login: Existing user login - POST /api/auth/login
-
+  router.post('/login',
+    AuthController.login
+  )
 
     return router;
 }
