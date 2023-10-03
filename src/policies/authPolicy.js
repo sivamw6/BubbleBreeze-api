@@ -7,6 +7,8 @@ module.exports = {
     // 1. Set the Joi schema
     debugJoi(req.body);
     const schema = Joi.object({
+      firstName: Joi.string().alphanum().min(3).max(30),
+      lastName: Joi.string().alphanum().min(3).max(30),
       username: Joi.string().alphanum().min(3).max(30),
       email: Joi.string().email({ minDomainSegments:2, tlds: {allow: ['com', 'net']}}),
       password: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')).required()
@@ -30,6 +32,12 @@ module.exports = {
     
       // Handle other errors
       switch(error.details[0].context.key) {
+        case 'firstName':
+          next(ApiError.badRequest('You must provide a valid first name'));
+          break;
+        case 'lastName':
+          next(ApiError.badRequest('You must provide a valid last name'));
+          break;  
         case 'username':
           next(ApiError.badRequest('You must provide a valid username'));
           break;
