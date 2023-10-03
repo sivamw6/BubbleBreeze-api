@@ -67,7 +67,7 @@ module.exports = {
       
       // Return the user object + token
       res.send({
-        user: userJSON,
+        // user: userJSON,
         // Mint & return the user object + the token WITHOUT the password
         token: jwtSignUser(userJSON)
       })
@@ -101,7 +101,7 @@ module.exports = {
 
       // Return the user object + token
       res.send({
-        user: userJSON,
+        // user: userJSON,
         // Mint & return the user object + the token WITHOUT the password
         token: jwtSignUser(userJSON)
       })  
