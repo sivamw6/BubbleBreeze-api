@@ -49,6 +49,7 @@ module.exports = {
 
       // User data can be saved to database
       const usersRef = db.collection('users');
+      const CurrentTime = new Date();
       const response = await usersRef.add({
         firstName: firstName  ,
         lastName: lastName,
@@ -56,7 +57,8 @@ module.exports = {
         email: email,
         // Encrypt our password
         password: await hashPassword(password),
-        isAdmin: false
+        isAdmin: false,
+        createdAt: CurrentTime
       })
       console.log(`User added to database:  ${response.id} `)
 
