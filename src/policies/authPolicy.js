@@ -45,7 +45,7 @@ module.exports = {
           next(ApiError.badRequest('You must provide a valid email'));
           break;
         case 'password':
-          next(ApiError.badRequest('Password must contain at least 1 uppercase letter, 1 lowercase letter, and 1 number length 3-30 characters'));
+          next(ApiError.badRequest('Password length must be 3-30 characters'));
           break;
         default:
           next(ApiError.badRequest('Invalid registration information'));
