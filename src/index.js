@@ -24,8 +24,17 @@ const app = express();
 // Express middleware, (the order is important)
 // HTTP Header-setter security CORS
 // app.use(cors({ origin: '*' }))
-app.use(helmet());
-app.use(cors(corsOptions)) // whitelisting
+
+
+
+
+//app.use(helmet());
+//app.use(cors(corsOptions)) // whitelisting
+
+
+
+
+
 // (a) Returns middleware that only parses JSON/urlcoded
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

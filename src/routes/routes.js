@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const authRoutues = require('./authRoutes');
+const productRoutes = require('./productRoutes');
 
 module.exports = () => {
   // Test GET Route
@@ -10,7 +11,11 @@ module.exports = () => {
   });
 
   // Sub-Routes
+  // auth: http://localhost:3000/api/auth
   router.use('/auth', authRoutues());
+
+  // product: http://localhost:3000/api/products
+  router.use('/products', productRoutes())
 
   return router;
 } 
