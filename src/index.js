@@ -7,12 +7,12 @@ const cors = require('cors');
 
 
 // Local imports
+const config = require('./config/config');
 const ApiError = require('./utils/ApiError');
 const ApiErrorHandler = require('./middleware/apiErrorHandler');
-const config = require('./config/config');
-const corsOptions = require('./config/corsOptions')
 const routes = require('./routes/routes');
 const { dbPing } = require('./config/db');
+const corsOptions = require('./config/corsOptions')
 // Dev debug console logs
 const debugStartup = require('debug')('app:startup');
 
@@ -28,8 +28,9 @@ const app = express();
 
 
 
-//app.use(helmet());
-//app.use(cors(corsOptions)) // whitelisting
+app.use(helmet());
+app.use(cors(corsOptions)) // whitelisting
+debugStartup('Helmet & CORS Pre-Flight requests enabled');
 
 
 
