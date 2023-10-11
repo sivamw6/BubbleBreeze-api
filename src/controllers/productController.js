@@ -1,5 +1,8 @@
 const { db } = require('../config/db');
 const ApiError = require('../utils/ApiError');
+const { storageBucketUpload } = require('../utils/bucketServices');
+const debugREAD = require('debug')('app:read');
+const debugWRITE = require('debug')('app:write');
 
 
 module.exports = {
@@ -39,5 +42,43 @@ module.exports = {
       return next(ApiError.internal('The products have gone missing', error));
     }
   },
+
+  // Post product
+  async postProduct(req, res, next) {
+    // (a) Validation (later) & testing data posted by user 
+    debugWRITE(req.body);
+    debugWRITE(req.files);
+    debugWRITE(res.locals);
+    // (b) File Upload to Storage Bucket
+    let downloadURL = null;
+    try {
+      const filename = res.locals.filename;
+      downloadURL = await storageBucketUpload(filename);
+    // [500 ERROR] Checks for Errors in our File Upload
+    } catch (error) {
+      return next(ApiError.internal('An error occurred in uploading the image to storage', error));
+    }
+    // (c) Save to Firestore ALL
+    try {
+      const productRef = db.collection('products');
+      const response = await productRef.add({
+        name: req.body.name,
+        description: req.body.description,
+        category: req.body.category,
+        price: Number(req.body.price),
+        sizes: req.body.sizes,
+        texture: req.body.texture,
+        onSale: req.body.onSale,
+        isAvailable: req.body.isAvailable,
+        image: downloadURL
+      });
+      console.log(`Added Product ID: ${response.id}`);
+      res.send(response.id);
+
+    // [500 ERROR] Checks for Errors in our Query - issue with route or DB query
+    } catch(err) {
+      return next(ApiError.internal('Your request could not be saved at this time', err));
+    }
+  }
 
 }
