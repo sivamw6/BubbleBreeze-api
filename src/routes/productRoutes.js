@@ -27,6 +27,9 @@ module.exports = () => {
 
 
   // Get by id products
+  router.get('/:id', 
+    ProductController.getProductById
+  );
 
 
 

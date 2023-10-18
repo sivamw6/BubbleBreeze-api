@@ -35,8 +35,6 @@ module.exports = {
       })
   
       res.send(products);
-      
-
 
     } catch (error) {
       return next(ApiError.internal('The products have gone missing', error));
@@ -79,6 +77,22 @@ module.exports = {
     } catch(err) {
       return next(ApiError.internal('Your request could not be saved at this time', err));
     }
-  }
+  },
+
+
+  // Get product by id
+  async getProductById(req, res, next) {
+    debugREAD(req.params.id);
+    try {
+      const productRef = db.collection('products').doc(req.params.id);
+      const doc = await productRef.get();
+      if (!doc.exists) {
+        return next(ApiError.badRequest("No product found with that ID"));
+      }
+      res.send(doc.data());
+    } catch (error) {
+      return next(ApiError.internal('The product has gone missing', error));
+    }
+  },
 
 }
