@@ -95,4 +95,9 @@ module.exports = {
     }
   },
 
+  // Put(update) product by id
+  async PutProductById(req, res, next) {
+    debugWRITE(req.params);
+    res.send("Test")
+  }
 }

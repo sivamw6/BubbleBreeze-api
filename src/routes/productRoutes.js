@@ -34,7 +34,14 @@ module.exports = () => {
 
 
   // Update by id product
-
+  router.put('/:id', 
+    [ProductPolicy.validateProduct,
+    FilePolicy.filesPayloadExists,
+    FilePolicy.fileSizeLimiter,
+    FilePolicy.fileExtLimiter(['.png', '.jpg', '.jpeg', '.gif']),
+    fileServerUpload],
+    ProductController.PutProductById
+  );
 
   // Delete by id product
 
