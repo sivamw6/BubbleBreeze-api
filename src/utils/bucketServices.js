@@ -57,5 +57,26 @@ module.exports = {
 
     return downloadURL
 
+  },
+
+  async deleteFileFromBucket(uploadedFile){
+    debugBucket(`Deleting file ${uploadedFile} from Storage`);
+    const file = bucket.file(uploadedFile);
+    const fileChecker = await file.exists();
+
+    // [400 ERROR]
+    if(fileChecker[0] === false) {
+      // TOGGLE: TRUE - ingnore missing files
+      const options ={
+        ignoreNotFound: true,
+      };
+      const data = await file.delete(options);
+      debugBucket(`File ${uploadedFile} does not exist in Storage - please check server for inconsistent data handling`);
+      return data[0];
+    } else { 
+      const data = await file.delete();
+      debugBucket(`File ${uploadedFile} deleted from Storage`);
+      return data[0];
+    }
   }
 }

@@ -1,12 +1,13 @@
 const { db } = require('../config/db');
 const ApiError = require('../utils/ApiError');
-const { storageBucketUpload } = require('../utils/bucketServices');
+const { storageBucketUpload, deleteFileFromBucket } = require('../utils/bucketServices');
 const debugREAD = require('debug')('app:read');
 const debugWRITE = require('debug')('app:write');
 
 
 module.exports = {
-  // Get all users
+
+  // [Get all users]
   async getAllProducts(req, res, next) {
 
     try {
@@ -33,15 +34,13 @@ module.exports = {
           isAvailable: doc.data().isAvailable,
         })
       })
-  
-      res.send(products);
-
+        res.send(products);
     } catch (error) {
       return next(ApiError.internal('The products have gone missing', error));
     }
   },
 
-  // Post product
+  // [Post product]
   async postProduct(req, res, next) {
     // (a) Validation (later) & testing data posted by user 
     debugWRITE(req.body);
@@ -80,7 +79,7 @@ module.exports = {
   },
 
 
-  // Get product by id
+  // [Get product by id]
   async getProductById(req, res, next) {
     debugREAD(req.params.id);
     try {
@@ -95,9 +94,60 @@ module.exports = {
     }
   },
 
-  // Put(update) product by id
+
+
+  // [Put(update) product by id]
   async PutProductById(req, res, next) {
+    // (a) Validation (later) & testing data posted by user 
     debugWRITE(req.params);
-    res.send("Test")
+    debugWRITE(req.body);
+    debugWRITE(req.files);
+    debugWRITE(res.locals);
+    let downloadURL = null;
+    try {
+    // (b1) File Upload to Storage Bucket
+    if(req.files) {
+      // (i) Storage-upload 
+      const filename = res.locals.filename;
+      downloadURL = await storageBucketUpload(filename);
+
+      // (ii) Storage-delete
+      if(req.body.uploadedFile){
+        debugWRITE(`Deleting old image in storage: ${req.body.uploadedFile}`);
+        const bucketResponse = await deleteFileFromBucket(req.body.uploadedFile);
+      }
+
+    // (b2) No File Upload to Storage Bucket
+    } else {
+      console.log("No change to image in DB")
+      downloadURL = req.body.image;
+    }
+
+
+    // [500 ERROR] Checks for Errors in our File Upload
+    } catch (error) {
+      return next(ApiError.internal('An error occurred in uploading the image to storage', error));
+    }
+    // (c) Save to Firestore ALL
+    try {
+      const productRef = db.collection('products').doc(req.params.id);
+      const response = await productRef.update({
+        name: req.body.name,
+        description: req.body.description,
+        category: req.body.category,
+        price: Number(req.body.price),
+        sizes: req.body.sizes,
+        texture: req.body.texture,
+        onSale: req.body.onSale,
+        isAvailable: req.body.isAvailable,
+        image: downloadURL
+      });
+      res.send(response);
+
+    // [500 ERROR] Checks for Errors in our Query - issue with route or DB query
+    } catch(err) {
+      return next(ApiError.internal('Your request could not be saved at this time', err));
+    }
+
   }
 }

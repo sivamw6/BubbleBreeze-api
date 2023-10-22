@@ -31,8 +31,6 @@ module.exports = () => {
     ProductController.getProductById
   );
 
-
-
   // Update by id product
   router.put('/:id', 
     [ProductPolicy.validateProduct,
