@@ -149,5 +149,22 @@ module.exports = {
       return next(ApiError.internal('Your request could not be saved at this time', err));
     }
 
-  }
+  },
+
+
+  // [Delete product by id]
+  async deleteProductById(req, res, next) {
+    debugWRITE(req.params.id);
+    try {
+      const productRef = db.collection('products').doc(req.params.id);
+      const doc = await productRef.get();
+      if (!doc.exists) {
+        return next(ApiError.badRequest("No product found with that ID"));
+      }
+      const response = await productRef.delete();
+      res.send(response);
+    } catch (error) {
+      return next(ApiError.internal('The product has gone missing', error));
+    }
+  },
 }
