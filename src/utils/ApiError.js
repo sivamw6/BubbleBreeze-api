@@ -10,6 +10,16 @@ class ApiError {
     return new ApiError(400, `Bad Request: ${msg}`);
   }
 
+  // [401] Unauthorized
+  static denyAccess(msg){
+    return new ApiError(401, `Access Denied: ${msg}`);
+  }
+
+  // [403] Forbidden
+  static forbidden(msg){
+    return new ApiError(403, `Forbidden: ${msg}`);
+  }
+
   // [404] Not Found
   static notFound(){
     return new ApiError(404, "Resource Not Found");

@@ -3,6 +3,7 @@ const router = express.Router();
 
 const ProductPolicy = require('../policies/productPolicy');
 const FilePolicy = require('../policies/filePolicy');
+const verifyAuth = require('../middleware/verifyAuth');
 const ProductController = require('../controllers/productController');
 const fileServerUpload = require('../middleware/fileSeverUpload');
 
@@ -17,7 +18,9 @@ module.exports = () => {
 
   // Add/Post new product
   router.post('/', 
-    [ProductPolicy.validateProduct,
+    [verifyAuth.auth,
+    verifyAuth.admin,
+      ProductPolicy.validateProduct,
     FilePolicy.filesPayloadExists,
     FilePolicy.fileSizeLimiter,
     FilePolicy.fileExtLimiter(['.png', '.jpg', '.jpeg', '.gif']),
@@ -33,7 +36,9 @@ module.exports = () => {
 
   // Update by id product
   router.put('/:id', 
-    [ProductPolicy.validateProduct,
+    [verifyAuth.auth,
+      verifyAuth.admin,
+    ProductPolicy.validateProduct,
     FilePolicy.filesPayloadExists,
     FilePolicy.fileSizeLimiter,
     FilePolicy.fileExtLimiter(['.png', '.jpg', '.jpeg', '.gif']),
@@ -42,9 +47,12 @@ module.exports = () => {
   );
 
   // Delete by id product
-  router.delete('/:id', 
+  router.delete('/:id',
+    [verifyAuth.auth,
+      verifyAuth.admin],
     ProductController.deleteProductById
   );
+
 
 
   return router
