@@ -1,4 +1,5 @@
 const { bucket } = require('../config/db');
+const config = require('../config/config.js');
 const debugBucket = require('debug')('app:bucket');
 const uuid = require('uuid');
 const fs = require('fs');
@@ -78,5 +79,19 @@ module.exports = {
       debugBucket(`File ${uploadedFile} deleted from Storage`);
       return data[0];
     }
+  },
+  getFileFromUrl(downloadUrl) {
+    // Remove front of URL string
+    const baseUrl = `https://firebasestorage.googleapis.com/v0/b/${config.db.storageBucket}/o/`;
+    debugBucket(`Base URL: ${baseUrl}`)
+    let fileGlob = downloadUrl.replace(baseUrl, "");
+  
+    // Remove end of URL string
+    const indexOfEndPath = fileGlob.indexOf("?");
+    fileGlob = fileGlob.substring(0, indexOfEndPath);
+    
+    // Retun existing file glob
+    debugBucket(`File in bucket queued for deletion: ${fileGlob}`);
+    return fileGlob;
   }
 }

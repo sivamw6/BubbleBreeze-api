@@ -1,6 +1,6 @@
 const { db } = require('../config/db');
 const ApiError = require('../utils/ApiError');
-const { storageBucketUpload, deleteFileFromBucket } = require('../utils/bucketServices');
+const { storageBucketUpload, deleteFileFromBucket, getFileFromUrl } = require('../utils/bucketServices');
 const debugREAD = require('debug')('app:read');
 const debugWRITE = require('debug')('app:write');
 
@@ -154,17 +154,34 @@ module.exports = {
 
   // [Delete product by id]
   async deleteProductById(req, res, next) {
-    debugWRITE(req.params.id);
     try {
+      // Request document with matching id = check if it exists
       const productRef = db.collection('products').doc(req.params.id);
       const doc = await productRef.get();
+
+      // [400 ERROR] Check for user asking for non-existent documents
       if (!doc.exists) {
         return next(ApiError.badRequest("No product found with that ID"));
       }
-      const response = await productRef.delete();
-      res.send(response);
+  
+      // Store downloadURL and obtain uplodaedFile in storage bucket
+      const downloadURL = doc.data().image;
+      const uploadedFile = getFileFromUrl(downloadURL);
+
+      // Call storage buucket delete function & delete previous image
+      const bucketResponse = await deleteFileFromBucket(uploadedFile);
+  
+      // Delete document from Cloud Firestore
+      if (bucketResponse) {
+        // Call DELETE method for ID (with PRECONDITION parameter to check document exists)
+        // NOTE: We defined Ref earlier!
+        const response = await productRef.delete({exists:true});
+
+        // SUCCESS: Issue back response for timebeing
+        res.send(response);
+      }
     } catch (error) {
       return next(ApiError.internal('The product has gone missing', error));
     }
-  },
-}
+  }
+  }
