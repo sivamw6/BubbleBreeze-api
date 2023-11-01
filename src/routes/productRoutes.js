@@ -14,7 +14,9 @@ module.exports = () => {
   );
 
   // Get onSale products
-
+  router.get('/onSale',
+    ProductController.getOnSaleProducts
+  );
 
   // Add/Post new product
   router.post('/', 
