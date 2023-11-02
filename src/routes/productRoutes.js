@@ -18,6 +18,11 @@ module.exports = () => {
     ProductController.getOnSaleProducts
   );
 
+  // Get products by category
+  router.get('/category/:category',
+    ProductController.getProductsByCategory
+  );
+
   // Add/Post new product
   router.post('/', 
     [verifyAuth.auth,
