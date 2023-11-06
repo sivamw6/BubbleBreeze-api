@@ -25,9 +25,9 @@ module.exports = () => {
 
   // Add/Post new product
   router.post('/', 
-    [verifyAuth.auth,
+    [ProductPolicy.validateProduct,
+    verifyAuth.auth,
     verifyAuth.admin,
-      ProductPolicy.validateProduct,
     FilePolicy.filesPayloadExists,
     FilePolicy.fileSizeLimiter,
     FilePolicy.fileExtLimiter(['.png', '.jpg', '.jpeg', '.gif']),
@@ -51,6 +51,7 @@ module.exports = () => {
     FilePolicy.fileExtLimiter(['.png', '.jpg', '.jpeg', '.gif']),
     fileServerUpload],
     ProductController.PutProductById
+
   );
 
   // Delete by id product

@@ -67,6 +67,7 @@ module.exports = {
     }
   },
 
+  // [Get products by category ]
   async getProductsByCategory(req, res, next) {
 
     const categoryName = req.params.category;
@@ -116,6 +117,8 @@ module.exports = {
     }
     // (c) Save to Firestore ALL
     try {
+      const onSaleBool = req.body.onSale === 'true' ? true : false;
+      const isAvailableBool = req.body.isAvailable === 'true' ? true : false;
       const productRef = db.collection('products');
       const response = await productRef.add({
         name: req.body.name,
@@ -124,8 +127,8 @@ module.exports = {
         price: Number(req.body.price),
         sizes: req.body.sizes,
         texture: req.body.texture,
-        onSale: req.body.onSale,
-        isAvailable: req.body.isAvailable,
+        onSale: onSaleBool,
+        isAvailable: isAvailableBool,
         image: downloadURL
       });
       console.log(`Added Product ID: ${response.id}`);
@@ -189,6 +192,9 @@ module.exports = {
     }
     // (c) Save to Firestore ALL
     try {
+      const onSaleBool = req.body.onSale === 'true' ? true : false;
+      const isAvailableBool = req.body.isAvailable === 'true' ? true : false;
+
       const productRef = db.collection('products').doc(req.params.id);
       const response = await productRef.update({
         name: req.body.name,
@@ -197,8 +203,8 @@ module.exports = {
         price: Number(req.body.price),
         sizes: req.body.sizes,
         texture: req.body.texture,
-        onSale: req.body.onSale,
-        isAvailable: req.body.isAvailable,
+        onSale: onSaleBool,
+        isAvailable: isAvailableBool,
         image: downloadURL
       });
       res.send(response);
