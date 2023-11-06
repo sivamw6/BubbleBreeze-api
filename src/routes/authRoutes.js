@@ -16,7 +16,6 @@ module.exports = () => {
     AuthController.signup
   )
 
-
   // Auth login: Existing user login - POST /api/auth/login
   router.post('/login',
     AuthPolicy.validateAuth,

@@ -3,6 +3,7 @@ const router = express.Router();
 
 const authRoutues = require('./authRoutes');
 const productRoutes = require('./productRoutes');
+const likedRoutes = require('./likedRoutes');
 
 module.exports = () => {
   // Test GET Route
@@ -16,6 +17,9 @@ module.exports = () => {
 
   // product: http://localhost:3000/api/products
   router.use('/products', productRoutes())
+
+  // liked: http://localhost:3000/api/liked
+  router.use('/liked', likedRoutes())
 
   return router;
 } 
