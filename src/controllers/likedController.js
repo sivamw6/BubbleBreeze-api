@@ -25,43 +25,35 @@ module.exports = {
     }
   },
 
-  // [(POST) Add a liked item]
-  async addLikedItem(req, res, next) {
-    try {
-      const userId = req.user.id; 
-      const { productId } = req.body; 
+  // [(POST) Add or Remove a liked item]
+async toggleLikedItem(req, res, next) {
+  try {
+    const userId = req.user.id; 
+    const { productId } = req.body; 
 
-      const likedRef = db.collection('liked');
+    const likedRef = db.collection('liked');
+    const querySnapshot = await likedRef
+      .where('userId', '==', userId)
+      .where('productId', '==', productId)
+      .limit(1)
+      .get();
+
+    if (!querySnapshot.empty) {
+      const docRef = querySnapshot.docs[0];
+      await likedRef.doc(docRef.id).delete();
+      res.status(200).send({ success: true, message: 'Liked item has been removed.' });
+    } else {
       const response = await likedRef.add({
         userId,
         productId,
         createdAt: new Date()
       });
-
-      res.status(201).send({ likedId: response.id });
-    } catch (error) {
-      return next(ApiError.internal("Error adding liked item", error));
+      res.status(201).send({ likedId: response.id, message: 'Liked item has been added.' });
     }
-  },
+  } catch (error) {
+    return next(ApiError.internal("Error toggling liked item", error));
+  }
+}
 
 
-  // [(DELETE) Remove a liked item]
-  async deleteLikedItem(req, res, next) {
-    try {
-      const userId = req.user.id; 
-      const { likedId } = req.params;
-
-      const likedRef = db.collection('liked').doc(likedId);
-      const doc = await likedRef.get();
-
-      if (!doc.exists || doc.data().userId !== userId) {
-        return next(ApiError.badRequest("Liked item not found or user mismatch."));
-      }
-
-      await likedRef.delete();
-      res.status(200).send({ success: true, message: 'Liked item has been removed.' });
-    } catch (error) {
-      return next(ApiError.internal("Error removing liked item", error));
-    }
-  },
 };

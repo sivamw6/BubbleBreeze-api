@@ -37,9 +37,17 @@ module.exports = () => {
 
 
   // Get by id products
+  router.post('/by-ids',
+  
+    ProductController.getProductsByIds
+  )
+
+  // Get by id products
   router.get('/:id', 
     ProductController.getProductById
-  );
+  );  
+
+
 
   // Update by id product
   router.put('/:id', 

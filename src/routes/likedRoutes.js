@@ -9,9 +9,8 @@ console.log(typeof verifyAuth);
 module.exports = () => {
   router.get('/', verifyAuth.auth, likedController.getLikedItems);
 
-  router.post('/', verifyAuth.auth, likedController.addLikedItem);
+  router.post('/', verifyAuth.auth, likedController.toggleLikedItem);
 
-  router.delete('/:itemId', verifyAuth.auth, likedController.deleteLikedItem);
 
 
 

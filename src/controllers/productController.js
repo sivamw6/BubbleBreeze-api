@@ -100,6 +100,31 @@ module.exports = {
     }
   },
 
+  // [Get products by ids]
+  async getProductsByIds(req, res, next) {
+    console.log('Request to /api/products/by-ids received', req.body);
+    try {
+      const ids = req.body.ids;
+      const productsRef = db.collection('products');
+      
+      const products = await Promise.all(
+        ids.map((id) => productsRef.doc(id).get())
+      );
+  
+      const productDetails = products.map((product) => {
+        if (!product.exists) {
+          return { error: 'Product not found', id: product.id };
+        }
+        return { id: product.id, ...product.data() };
+      });
+  
+      res.json(productDetails); 
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
+  
+  },
+
   // [Post product]
   async postProduct(req, res, next) {
     // (a) Validation (later) & testing data posted by user 
@@ -155,6 +180,8 @@ module.exports = {
       return next(ApiError.internal('The product has gone missing', error));
     }
   },
+
+
 
 
 
