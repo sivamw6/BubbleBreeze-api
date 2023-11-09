@@ -12,7 +12,7 @@ module.exports = {
 
     try {
       const productsRef = db.collection('products');
-      const snapshot = await productsRef.orderBy("name", "asc").limit(10).get();
+      const snapshot = await productsRef.orderBy("category", "asc").limit(10).get();
       if (snapshot.empty) {
         return next(ApiError.badRequest("No Products!!"));
       }

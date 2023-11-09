@@ -21,8 +21,6 @@ const debugStartup = require('debug')('app:startup');
 // Init express app
 const app = express(); 
 
-
-
 // Express middleware, (the order is important)
 // HTTP Header-setter security CORS
 // app.use(cors({ origin: '*' }))
