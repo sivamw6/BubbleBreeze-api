@@ -1,14 +1,14 @@
-const express = require('express');
-const router = express.Router();
+const express = require('express')
+const router = express.Router()
 
-const AuthPolicy = require('../policies/authPolicy');
-const AuthController = require('../controllers/authController');
+const AuthPolicy = require('../policies/authPolicy')
+const AuthController = require('../controllers/authController')
 
 module.exports = () => {
   // Auth: test rroute for list of users - GET /api/auth/users
-  router.get('/users', 
+  router.get('/users',
     AuthController.listUsers
-    )
+  )
 
   // Auth register: New user sign up - POST /api/auth/signup
   router.post('/signup',
@@ -22,5 +22,5 @@ module.exports = () => {
     AuthController.login
   )
 
-    return router;
+  return router
 }

@@ -1,22 +1,20 @@
-const { db } = require('../config/db');
-const ApiError = require('../utils/ApiError');
-const { storageBucketUpload, deleteFileFromBucket, getFileFromUrl } = require('../utils/bucketServices');
-const debugREAD = require('debug')('app:read');
-const debugWRITE = require('debug')('app:write');
-
+const { db } = require('../config/db')
+const ApiError = require('../utils/ApiError')
+const { storageBucketUpload, deleteFileFromBucket, getFileFromUrl } = require('../utils/bucketServices')
+const debugREAD = require('debug')('app:read')
+const debugWRITE = require('debug')('app:write')
 
 module.exports = {
 
   // [Get all users]
-  async getAllProducts(req, res, next) {
-
+  async getAllProducts (req, res, next) {
     try {
-      const productsRef = db.collection('products');
-      const snapshot = await productsRef.orderBy("category", "asc").limit(10).get();
+      const productsRef = db.collection('products')
+      const snapshot = await productsRef.orderBy('category', 'asc').limit(10).get()
       if (snapshot.empty) {
-        return next(ApiError.badRequest("No Products!!"));
+        return next(ApiError.badRequest('No Products!!'))
       }
-      let products = [];
+      const products = []
       snapshot.forEach(doc => {
         products.push({
           id: doc.id,
@@ -28,24 +26,24 @@ module.exports = {
           texture: doc.data().texture,
           price: doc.data().price,
           onSale: doc.data().onSale,
-          isAvailable: doc.data().isAvailable,
+          isAvailable: doc.data().isAvailable
         })
       })
-      res.send(products);
+      res.send(products)
     } catch (error) {
-      return next(ApiError.internal('The products have gone missing', error));
+      return next(ApiError.internal('The products have gone missing', error))
     }
   },
 
   // [Get onSale products]
-  async getOnSaleProducts(req, res, next) {
+  async getOnSaleProducts (req, res, next) {
     try {
-      const productsRef = db.collection('products');
-      const snapshot = await productsRef.where("onSale", "==", true).orderBy("name", "asc").limit(10).get();
+      const productsRef = db.collection('products')
+      const snapshot = await productsRef.where('onSale', '==', true).orderBy('name', 'asc').limit(10).get()
       if (snapshot.empty) {
-        return next(ApiError.badRequest("No Products on sale, Sorry!!"));
+        return next(ApiError.badRequest('No Products on sale, Sorry!!'))
       } else {
-        let products = [];
+        const products = []
         snapshot.forEach(doc => {
           products.push({
             id: doc.id,
@@ -57,28 +55,27 @@ module.exports = {
             texture: doc.data().texture,
             price: doc.data().price,
             onSale: doc.data().onSale,
-            isAvailable: doc.data().isAvailable,
+            isAvailable: doc.data().isAvailable
           })
         })
-        res.send(products);
+        res.send(products)
       }
     } catch (error) {
-      return next(ApiError.internal('The products have gone missing', error));
+      return next(ApiError.internal('The products have gone missing', error))
     }
   },
 
   // [Get products by category ]
-  async getProductsByCategory(req, res, next) {
-
-    const categoryName = req.params.category;
-    if(!categoryName) return next(ApiError.badRequest("No category name provided"));
+  async getProductsByCategory (req, res, next) {
+    const categoryName = req.params.category
+    if (!categoryName) return next(ApiError.badRequest('No category name provided'))
     try {
-      const productsRef = db.collection('products');
-      const snapshot = await productsRef.where("category", "==", categoryName).orderBy("name", "asc").limit(10).get();
+      const productsRef = db.collection('products')
+      const snapshot = await productsRef.where('category', '==', categoryName).orderBy('name', 'asc').limit(10).get()
       if (snapshot.empty) {
-        return next(ApiError.badRequest("No Products in this category, Sorry!!"));
+        return next(ApiError.badRequest('No Products in this category, Sorry!!'))
       } else {
-        let products = [];
+        const products = []
         snapshot.forEach(doc => {
           products.push({
             id: doc.id,
@@ -90,61 +87,60 @@ module.exports = {
             texture: doc.data().texture,
             price: doc.data().price,
             onSale: doc.data().onSale,
-            isAvailable: doc.data().isAvailable,
+            isAvailable: doc.data().isAvailable
           })
         })
-        res.send(products);
+        res.send(products)
       }
     } catch (error) {
-      return next(ApiError.internal('The products have gone missing', error));
+      return next(ApiError.internal('The products have gone missing', error))
     }
   },
 
   // [Get products by ids]
-  async getProductsByIds(req, res, next) {
-    console.log('Request to /api/products/by-ids received', req.body);
+  async getProductsByIds (req, res, next) {
+    console.log('Request to /api/products/by-ids received', req.body)
     try {
-      const ids = req.body.ids;
-      const productsRef = db.collection('products');
-      
+      const ids = req.body.ids
+      const productsRef = db.collection('products')
+
       const products = await Promise.all(
         ids.map((id) => productsRef.doc(id).get())
-      );
-  
+      )
+
       const productDetails = products.map((product) => {
         if (!product.exists) {
-          return { error: 'Product not found', id: product.id };
+          return { error: 'Product not found', id: product.id }
         }
-        return { id: product.id, ...product.data() };
-      });
-  
-      res.json(productDetails); 
+        return { id: product.id, ...product.data() }
+      })
+
+      res.json(productDetails)
     } catch (error) {
-      res.status(500).send(error.message);
+      res.status(500).send(error.message)
     }
-  
   },
 
   // [Post product]
-  async postProduct(req, res, next) {
-    // (a) Validation (later) & testing data posted by user 
-    debugWRITE(req.body);
-    debugWRITE(req.files);
-    debugWRITE(res.locals);
+  async postProduct (req, res, next) {
+    // (a) Validation (later) & testing data posted by user
+    debugWRITE(req.body)
+    debugWRITE(req.files)
+    debugWRITE(res.locals)
     // (b) File Upload to Storage Bucket
-    let downloadURL = null;
+    let downloadURL = null
     try {
-      const filename = res.locals.filename;
-      downloadURL = await storageBucketUpload(filename);
+      const filename = res.locals.filename
+      downloadURL = await storageBucketUpload(filename)
     // [500 ERROR] Checks for Errors in our File Upload
     } catch (error) {
-      return next(ApiError.internal('An error occurred in uploading the image to storage', error));
+      return next(ApiError.internal('An error occurred in uploading the image to storage', error))
     }
     // (c) Save to Firestore ALL
     try {
-      const onSaleBool = req.body.onSale === 'true' ? true : false;
-      const isAvailableBool = req.body.isAvailable === 'true' ? true : false;
-      const productRef = db.collection('products');
+      const onSaleBool = req.body.onSale === 'true'
+      const isAvailableBool = req.body.isAvailable === 'true'
+      const productRef = db.collection('products')
       const response = await productRef.add({
         name: req.body.name,
         description: req.body.description,
@@ -155,74 +151,68 @@ module.exports = {
         onSale: onSaleBool,
         isAvailable: isAvailableBool,
         image: downloadURL
-      });
-      console.log(`Added Product ID: ${response.id}`);
-      res.send(response.id);
+      })
+      console.log(`Added Product ID: ${response.id}`)
+      res.send(response.id)
 
     // [500 ERROR] Checks for Errors in our Query - issue with route or DB query
-    } catch(err) {
-      return next(ApiError.internal('Your request could not be saved at this time', err));
+    } catch (err) {
+      return next(ApiError.internal('Your request could not be saved at this time', err))
     }
   },
-
 
   // [Get product by id]
-  async getProductById(req, res, next) {
-    debugREAD(req.params.id);
+  async getProductById (req, res, next) {
+    debugREAD(req.params.id)
     try {
-      const productRef = db.collection('products').doc(req.params.id);
-      const doc = await productRef.get();
+      const productRef = db.collection('products').doc(req.params.id)
+      const doc = await productRef.get()
       if (!doc.exists) {
-        return next(ApiError.badRequest("No product found with that ID"));
+        return next(ApiError.badRequest('No product found with that ID'))
       }
-      res.send(doc.data());
+      res.send(doc.data())
     } catch (error) {
-      return next(ApiError.internal('The product has gone missing', error));
+      return next(ApiError.internal('The product has gone missing', error))
     }
   },
 
-
-
-
-
   // [Put(update) product by id]
-  async PutProductById(req, res, next) {
-    // (a) Validation (later) & testing data posted by user 
-    debugWRITE(req.params);
-    debugWRITE(req.body);
-    debugWRITE(req.files);
-    debugWRITE(res.locals);
-    let downloadURL = null;
+  async PutProductById (req, res, next) {
+    // (a) Validation (later) & testing data posted by user
+    debugWRITE(req.params)
+    debugWRITE(req.body)
+    debugWRITE(req.files)
+    debugWRITE(res.locals)
+    let downloadURL = null
     try {
     // (b1) File Upload to Storage Bucket
-    if(req.files) {
-      // (i) Storage-upload 
-      const filename = res.locals.filename;
-      downloadURL = await storageBucketUpload(filename);
+      if (req.files) {
+      // (i) Storage-upload
+        const filename = res.locals.filename
+        downloadURL = await storageBucketUpload(filename)
 
-      // (ii) Storage-delete
-      if(req.body.uploadedFile){
-        debugWRITE(`Deleting old image in storage: ${req.body.uploadedFile}`);
-        const bucketResponse = await deleteFileFromBucket(req.body.uploadedFile);
+        // (ii) Storage-delete
+        if (req.body.uploadedFile) {
+          debugWRITE(`Deleting old image in storage: ${req.body.uploadedFile}`)
+          const bucketResponse = await deleteFileFromBucket(req.body.uploadedFile)
+        }
+
+        // (b2) No File Upload to Storage Bucket
+      } else {
+        console.log('No change to image in DB')
+        downloadURL = req.body.image
       }
-
-    // (b2) No File Upload to Storage Bucket
-    } else {
-      console.log("No change to image in DB")
-      downloadURL = req.body.image;
-    }
-
 
     // [500 ERROR] Checks for Errors in our File Upload
     } catch (error) {
-      return next(ApiError.internal('An error occurred in uploading the image to storage', error));
+      return next(ApiError.internal('An error occurred in uploading the image to storage', error))
     }
     // (c) Save to Firestore ALL
     try {
-      const onSaleBool = req.body.onSale === 'true' ? true : false;
-      const isAvailableBool = req.body.isAvailable === 'true' ? true : false;
+      const onSaleBool = req.body.onSale === 'true'
+      const isAvailableBool = req.body.isAvailable === 'true'
 
-      const productRef = db.collection('products').doc(req.params.id);
+      const productRef = db.collection('products').doc(req.params.id)
       const response = await productRef.update({
         name: req.body.name,
         description: req.body.description,
@@ -233,47 +223,45 @@ module.exports = {
         onSale: onSaleBool,
         isAvailable: isAvailableBool,
         image: downloadURL
-      });
-      res.send(response);
+      })
+      res.send(response)
 
     // [500 ERROR] Checks for Errors in our Query - issue with route or DB query
-    } catch(err) {
-      return next(ApiError.internal('Your request could not be saved at this time', err));
+    } catch (err) {
+      return next(ApiError.internal('Your request could not be saved at this time', err))
     }
-
   },
 
-
   // [Delete product by id]
-  async deleteProductById(req, res, next) {
+  async deleteProductById (req, res, next) {
     try {
       // Request document with matching id = check if it exists
-      const productRef = db.collection('products').doc(req.params.id);
-      const doc = await productRef.get();
+      const productRef = db.collection('products').doc(req.params.id)
+      const doc = await productRef.get()
 
       // [400 ERROR] Check for user asking for non-existent documents
       if (!doc.exists) {
-        return next(ApiError.badRequest("No product found with that ID"));
+        return next(ApiError.badRequest('No product found with that ID'))
       }
-  
+
       // Store downloadURL and obtain uplodaedFile in storage bucket
-      const downloadURL = doc.data().image;
-      const uploadedFile = getFileFromUrl(downloadURL);
+      const downloadURL = doc.data().image
+      const uploadedFile = getFileFromUrl(downloadURL)
 
       // Call storage buucket delete function & delete previous image
-      const bucketResponse = await deleteFileFromBucket(uploadedFile);
-  
+      const bucketResponse = await deleteFileFromBucket(uploadedFile)
+
       // Delete document from Cloud Firestore
       if (bucketResponse) {
         // Call DELETE method for ID (with PRECONDITION parameter to check document exists)
         // NOTE: We defined Ref earlier!
-        const response = await productRef.delete({exists:true});
+        const response = await productRef.delete({ exists: true })
 
         // SUCCESS: Issue back response for timebeing
-        res.send(response);
+        res.send(response)
       }
     } catch (error) {
-      return next(ApiError.internal('The product has gone missing', error));
+      return next(ApiError.internal('The product has gone missing', error))
     }
   }
-  }
+}

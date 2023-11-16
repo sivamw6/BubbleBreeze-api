@@ -1,11 +1,11 @@
-const config = require('./config');
-const debugCors = require('debug')('app:cors');
+const config = require('./config')
+const debugCors = require('debug')('app:cors')
 
 const whitelist = config.corsAllowedOptions
-debugCors(whitelist);
+debugCors(whitelist)
 
 const corsOptions = {
-  origin:  (origin, callback) => {
+  origin: (origin, callback) => {
     // whitelisted origin
     if (whitelist.indexOf(origin) !== -1 || !origin) {
       callback(null, true)
@@ -17,5 +17,4 @@ const corsOptions = {
   optionsSuccessStatus: 200
 }
 
-
-module.exports = corsOptions;
+module.exports = corsOptions

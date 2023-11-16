@@ -2,7 +2,6 @@ module.exports = {
   // PORT ENV
   port: process.env.PORT,
 
-
   // Database ENVs
   db: {
     serviceAccount: process.env.GOOGLE_APPLICATION_CREDENTIALS,
@@ -11,12 +10,12 @@ module.exports = {
 
   // Auth ENVs
   authentication: {
-    jwtSecret: process.env.JWT_SECRET,
-  }, 
+    jwtSecret: process.env.JWT_SECRET
+  },
 
   // CORS whitelist
   corsAllowedOptions: [
     process.env.CORS_WHITELIST_1,
-    process.env.CORS_WHITELIST_2,
+    process.env.CORS_WHITELIST_2
   ]
 }
