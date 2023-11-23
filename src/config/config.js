@@ -26,7 +26,7 @@ module.exports = {
     jwtSecret: process.env.JWT_SECRET
   },
 
-  // CORS whitelist
+  // CORS whitelist   
   corsAllowedOptions: [
     process.env.CORS_WHITELIST_1,
     process.env.CORS_WHITELIST_2
