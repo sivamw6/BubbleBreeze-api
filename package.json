@@ -28,6 +28,7 @@
   "scripts": {
     "dev": "DEBUG=app* nodemon src/index",
     "devpc": "set DEBUG=app:* & nodemon src/index",
+    "preview": "DEBUG=app* node src/index",
     "prod": "node src/index"
   }
 }
